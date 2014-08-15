@@ -88,7 +88,7 @@ function edd_tk_get_typekit_kit_options( $edd_settings ){
 	foreach( $typekit_kits as $kit_array ):
 		foreach( $kit_array as $kit ):
 			$kit_info = $typekit->get( $kit[ 'id' ], $typekit_token );
-			echo '<option value="' . $kit_info[ 'kit' ][ 'id' ] . '" ' . selected( $kit_info[ 'kit' ][ 'id' ], $typekit_kit_id ) . '>';
+			echo '<option value="' . $kit_info[ 'kit' ][ 'id' ] . '" ' . selected( $kit_info[ 'kit' ][ 'id' ], $typekit_kit_id, false ) . '>';
 			echo $kit_info[ 'kit' ][ 'name' ] . ' (' . $kit_info[ 'kit' ][ 'id' ] . ')';
 			echo '</option>';
 		endforeach;
