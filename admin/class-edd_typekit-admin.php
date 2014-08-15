@@ -10,6 +10,7 @@
  */
 
 require_once( plugin_dir_path( __FILE__ ) . 'includes/metaboxes.php' );
+require_once( plugin_dir_path( __FILE__ ) . 'includes/php-typekit/typekit-client.php' );
 
 /**
  * EDD_Typekit_Kit_Manager_Admin class. This class should ideally be used to work with the
@@ -97,15 +98,6 @@ class EDD_Typekit_Kit_Manager_Admin {
 	 * @return    object    A single instance of this class.
 	 */
 	public static function get_instance() {
-
-		/*
-		 * @TODO :
-		 *
-		 * - Uncomment following lines if the admin class should only be available for super admins
-		 */
-		/* if( ! is_super_admin() ) {
-			return;
-		} */
 
 		// If the single instance hasn't been set, set it now.
 		if ( null == self::$instance ) {
