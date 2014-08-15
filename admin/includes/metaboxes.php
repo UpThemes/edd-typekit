@@ -49,6 +49,7 @@ function edd_tk_render_fontkit_meta_box()	{
 					echo '<label for="edd_tk_kit_id">' . __( 'Typekit Kit ID', 'edd_tk' ) . '</label><br/>';
 					echo '<select name="edd_tk_kit_id" id="edd_tk_kit_id">';
 
+					echo '<option>' . __( 'Select a Kit', 'edd_tk' ) . '</option>';
 					edd_tk_get_typekit_kit_options( $edd_settings );
 
 					echo '</select>';
@@ -60,6 +61,8 @@ function edd_tk_render_fontkit_meta_box()	{
 
 		echo '</table>';
 
+	} else {
+		_e( 'Please enter your Typekit API key in the Easy Digital Downloads Settings tab to utilize this feature.' , 'edd_tk' );
 	}
 
 }
