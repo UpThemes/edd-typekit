@@ -1,0 +1,3 @@
+[submodule "admin/includes/php-typekit"]
+	path = admin/includes/php-typekit
+	url = git@github.com:bramstein/php-typekit.git
