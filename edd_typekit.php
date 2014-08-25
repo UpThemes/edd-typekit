@@ -58,5 +58,6 @@ if ( is_admin() ) {
 
 	require_once( plugin_dir_path( __FILE__ ) . 'admin/class-edd_typekit-admin.php' );
 	add_action( 'plugins_loaded', array( 'EDD_Typekit_Kit_Manager_Admin', 'get_instance' ) );
+	add_action( 'plugins_loaded', array( 'EDD_Typekit_Kit_License_Manager_Admin', 'get_instance' ) );
 
 }
