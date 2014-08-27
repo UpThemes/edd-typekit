@@ -43,12 +43,22 @@ if( class_exists( 'EDD_License' ) && is_admin() ) {
 	$edd_typekit_license = new EDD_License( __FILE__, 'Typekit Font Manager', EDD_TYPEKIT_VERSION, 'Chris Wallace', 'typekit_api_key' );
 }
 
-/*
- * Register hooks that are fired when the plugin is activated or deactivated.
- * When the plugin is deleted, the uninstall.php file is loaded.
+/**
+ * Returns the user's Typekit ID in a remote license key check call.
  */
-//register_activation_hook( __FILE__, array( 'EDD_Typekit_Kit_Manager', 'activate' ) );
-//register_deactivation_hook( __FILE__, array( 'EDD_Typekit_Kit_Manager', 'deactivate' ) );
+function edd_tk_return_kit_id( $data, $args, $license_id ){
+
+	$personal_kit_id  = get_post_meta( $license_id, '_edd_tk_kit_id', true );
+
+	if( $personal_kit_id ){
+		$data['typekit_id'] = $personal_kit_id;
+	}
+
+	return $data;
+
+}
+
+add_action( 'edd_remote_license_check_response', 'edd_tk_return_kit_id', 3, 3 );
 
 /*----------------------------------------------------------------------------*
  * Dashboard and Administrative Functionality
