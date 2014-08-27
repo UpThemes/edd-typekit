@@ -10,8 +10,6 @@
  */
 
 require_once( plugin_dir_path( __FILE__ ) . 'includes/metaboxes.php' );
-require_once( plugin_dir_path( __FILE__ ) . 'includes/license_manager.php' );
-require_once( plugin_dir_path( __FILE__ ) . 'includes/php-typekit/typekit-client.php' );
 
 /**
  * EDD_Typekit_Kit_Manager_Admin class. This class should ideally be used to work with the
