@@ -256,15 +256,21 @@ class EDD_Typekit_Kit_License_Manager_Admin  {
 	 */
 	public function edd_tk_check_valid_kit(){
 
+		if( ! $this->license_id )
+			return;
+
+		if( ! $this->typekit_token )
+			return;
+
 		if ( ! $this->personal_kit_id ){
 			$this->personal_kit_id = get_post_meta( $this->license_id, '_edd_tk_kit_id', true );
 		}
 
 		$kit_id = $this->typekit->get( $this->personal_kit_id, $this->typekit_token );
 
-		if( $kit_id == null ){
+		if( ! $kit_id ){
 			delete_post_meta( $this->license_id, '_edd_tk_kit_id' );
-			return false;
+			return;
 		}
 
 		return true;
@@ -275,6 +281,9 @@ class EDD_Typekit_Kit_License_Manager_Admin  {
 	 * Creates the Typekit kit
 	 */
 	public function edd_tk_update_kit(){
+
+		if( ! $this->license_id )
+			return;
 
 		$this->personal_kit_id  = get_post_meta( $this->license_id, '_edd_tk_kit_id', true );
 
@@ -302,6 +311,9 @@ class EDD_Typekit_Kit_License_Manager_Admin  {
 	 * Creates the Typekit kit
 	 */
 	public function edd_tk_create_kit(){
+
+		if( ! $this->download_id || ! $this->default_kit_id )
+			return;
 
 		$new_kit_info             = array();
 		$new_kit_info['name']     = $this->download_id . " - " . $this->default_kit_id;
