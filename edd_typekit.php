@@ -43,17 +43,17 @@ if( class_exists( 'EDD_License' ) && is_admin() ) {
 	$edd_typekit_license = new EDD_License( __FILE__, 'Typekit Font Manager', EDD_TYPEKIT_VERSION, 'Chris Wallace', 'typekit_api_key' );
 }
 
-require_once( plugin_dir_path( __FILE__ ) . 'includes/remote_activation.php' );
 require_once( plugin_dir_path( __FILE__ ) . 'includes/class-edd_typekit_license_manager.php' );
 require_once( plugin_dir_path( __FILE__ ) . 'includes/php-typekit/typekit-client.php' );
+
+/**
+ * Set up license manager class when plugins are loaded.
+ */
+add_action( 'plugins_loaded', array( 'EDD_Typekit_Kit_License_Manager_Admin', 'get_instance' ) );
 
 /*----------------------------------------------------------------------------*
  * Dashboard and Administrative Functionality
  *----------------------------------------------------------------------------*/
 
-if ( is_admin() ) {
-
+if ( is_admin() )
 	require_once( plugin_dir_path( __FILE__ ) . 'admin/class-edd_typekit-admin.php' );
-	add_action( 'plugins_loaded', array( 'EDD_Typekit_Kit_Manager_Admin', 'get_instance' ) );
-
-}

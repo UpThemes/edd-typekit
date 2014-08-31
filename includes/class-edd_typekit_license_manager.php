@@ -24,7 +24,7 @@ class EDD_Typekit_Kit_License_Manager_Admin  {
 	 *
 	 * @var      object
 	 */
-	protected static $typekit = null;
+	protected $typekit = null;
 
 	/**
 	 * Instance of the typekit token.
@@ -33,7 +33,7 @@ class EDD_Typekit_Kit_License_Manager_Admin  {
 	 *
 	 * @var      array
 	 */
-	static $typekit_token = null;
+	protected $typekit_token = null;
 
 	/**
 	 * Instance of the user's license key.
@@ -42,7 +42,7 @@ class EDD_Typekit_Kit_License_Manager_Admin  {
 	 *
 	 * @var      array
 	 */
-	static $license_key = null;
+	protected $license_key = null;
 
 	/**
 	 * Instance of the user's license key.
@@ -51,7 +51,7 @@ class EDD_Typekit_Kit_License_Manager_Admin  {
 	 *
 	 * @var      array
 	 */
-	static $license_id = null;
+	protected $license_id = null;
 
 	/**
 	 * Status of the user's license key.
@@ -60,7 +60,7 @@ class EDD_Typekit_Kit_License_Manager_Admin  {
 	 *
 	 * @var      array
 	 */
-	static $license_status = null;
+	protected $license_status = null;
 
 	/**
 	 * Instance of the personal kit ID.
@@ -69,7 +69,7 @@ class EDD_Typekit_Kit_License_Manager_Admin  {
 	 *
 	 * @var      array
 	 */
-	static $personal_kit_id = null;
+	protected $personal_kit_id = null;
 
 	/**
 	 * Instance of download ID.
@@ -78,7 +78,7 @@ class EDD_Typekit_Kit_License_Manager_Admin  {
 	 *
 	 * @var      array
 	 */
-	static $download_id = null;
+	protected $download_id = null;
 
 	/**
 	 * Instance of the default kit ID for user's purchased product.
@@ -87,7 +87,7 @@ class EDD_Typekit_Kit_License_Manager_Admin  {
 	 *
 	 * @var      array
 	 */
-	static $default_kit_id = null;
+	protected $default_kit_id = null;
 
 	/**
 	 * Instance of the user's active sites.
@@ -96,7 +96,7 @@ class EDD_Typekit_Kit_License_Manager_Admin  {
 	 *
 	 * @var      array
 	 */
-	static $sites = null;
+	protected $sites = null;
 
 	/**
 	 * Initialize the plugin by loading admin scripts & styles and adding a
@@ -110,9 +110,15 @@ class EDD_Typekit_Kit_License_Manager_Admin  {
 
 		add_action( 'updated_postmeta', array( $this, 'edd_tk_sites_update' ), 10, 5 );
 
-		add_action( 'edd_sl_activate_license', array( $this, 'load_variables' ), 2, 2 );
+		add_action( 'edd_sl_pre_activate_license', array( $this, 'load_variables' ), 2, 2 );
+		add_action( 'edd_sl_pre_deactivate_license', array( $this, 'load_variables' ), 2, 2 );
+		add_action( 'edd_sl_check_license', array( $this, 'load_variables' ), 2, 2 );
+
+		add_action( 'init', array( $this, 'edd_tk_check_valid_kit' ), 1, 1 );
 
 		add_action( 'edd_tk_update_kit', array( $this, 'edd_tk_update_kit_domains' ), 1, 1 );
+
+		add_action( 'edd_remote_license_activation_response', array( $this, 'edd_tk_return_kit_id' ), 3, 3 );
 
 		$this->typekit = new Typekit();
 
@@ -138,10 +144,12 @@ class EDD_Typekit_Kit_License_Manager_Admin  {
 		return self::$instance;
 	}
 
-	public function load_variables( $license_id, $download_id ){
+	public function load_variables( $license_id, $download_id = false ){
 
-		if( $license_id )
-			$this->license_id = $license_id;
+		if( ! $license_id )
+			return;
+
+		$this->license_id = $license_id;
 
 		if( $download_id )
 			$this->download_id = $download_id;
@@ -227,6 +235,43 @@ class EDD_Typekit_Kit_License_Manager_Admin  {
 	}
 
 	/**
+	 * Returns the user's Typekit ID in a remote license key check call.
+	 */
+	public function edd_tk_return_kit_id( $data, $args, $license_id ){
+
+		$this->load_variables( $license_id );
+
+		$kit_is_valid = $this->edd_tk_check_valid_kit();
+
+		if( $this->personal_kit_id && $kit_is_valid ){
+			$data['typekit_id'] = $this->personal_kit_id;
+		}
+
+		return $data;
+
+	}
+
+	/**
+	 * Check for valid personal kit
+	 */
+	public function edd_tk_check_valid_kit(){
+
+		if ( ! $this->personal_kit_id ){
+			$this->personal_kit_id = get_post_meta( $this->license_id, '_edd_tk_kit_id', true );
+		}
+
+		$kit_id = $this->typekit->get( $this->personal_kit_id, $this->typekit_token );
+
+		if( $kit_id == null ){
+			delete_post_meta( $this->license_id, '_edd_tk_kit_id' );
+			return false;
+		}
+
+		return true;
+
+	}
+
+	/**
 	 * Creates the Typekit kit
 	 */
 	public function edd_tk_update_kit(){
@@ -238,10 +283,16 @@ class EDD_Typekit_Kit_License_Manager_Admin  {
 		$kit_info['domains']  = $this->sites;
 		$kit_info['families'] = $this->default_kit_info['kit']['families'];
 
-		$kit_id = $this->typekit->update( $this->personal_kit_id, $kit_info, $this->typekit_token );
+		$kit_is_valid = $this->edd_tk_check_valid_kit();
 
-		if( $kit_id ){
-			$this->typekit->publish( $this->personal_kit_id, $this->typekit_token );
+ 		if( $kit_is_valid ){
+
+			$kit_id = $this->typekit->update( $this->personal_kit_id, $kit_info, $this->typekit_token );
+
+			if( $kit_id ){
+				$this->typekit->publish( $this->personal_kit_id, $this->typekit_token );
+			}
+
 		}
 
 	}
