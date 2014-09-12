@@ -109,6 +109,7 @@ class EDD_Typekit_Kit_License_Manager_Admin  {
 		add_action( 'edd_sl_post_set_status', array( $this, 'edd_tk_check_status' ), 2, 2 );
 
 		add_action( 'updated_postmeta', array( $this, 'edd_tk_sites_update' ), 10, 5 );
+		add_action( 'added_post_meta', array( $this, 'edd_tk_sites_update' ), 10, 5 );
 
 		add_action( 'edd_sl_pre_activate_license', array( $this, 'load_variables' ), 2, 2 );
 		add_action( 'edd_sl_pre_deactivate_license', array( $this, 'load_variables' ), 2, 2 );
